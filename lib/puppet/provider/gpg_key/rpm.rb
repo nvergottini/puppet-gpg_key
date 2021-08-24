@@ -38,7 +38,11 @@ Puppet::Type.type(:gpg_key).provide(:rpm) do
 
   def keyid
     if File.exist?(@resource[:path])
-      gpg(["--quiet", "--throw-keyids", @resource[:path]].compact)[11..18].downcase
+      gpg(["--quiet", "--throw-keyids", "--with-colons", @resource[:path]].compact)
+      .split('\n')
+      .find {|item| item.start_with?("pub:")}
+      .split(':')[4][8..15]
+      .downcase
     else
       nil
     end
